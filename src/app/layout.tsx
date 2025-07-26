@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { BasicPage } from "@/components/basic-page/basic-page";
 
 export const metadata: Metadata = {
   title: "Wishlist App",
@@ -16,7 +17,11 @@ export default function RootLayout({
       <head>
         <script src="https://accounts.google.com/gsi/client" async></script>
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <BasicPage>
+          {children}
+        </BasicPage>
+      </body>
     </html>
   );
 }
