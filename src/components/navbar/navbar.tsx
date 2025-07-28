@@ -3,10 +3,11 @@
 import { supabase } from "@/lib/supabase";
 import { useState, useEffect } from "react";
 import type { Session } from "@supabase/supabase-js";
+import { useAuth } from "@/context/auth-context";
 import Link from "next/link";
 import { Alert } from "../alert";
 import { Button } from "@/components/ui/button";
-import { Logo } from "./logo";
+import WishlistSvg from "@/public/wishlist.svg";
 // import { NavMenu } from "./nav-menu";
 import { NavigationSheet } from "./navigation-sheet";
 
@@ -37,15 +38,13 @@ const Navbar = () => {
     supabase.auth.signInWithOAuth({
       provider: "google",
     });
-
   };
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
 
     if (!error) {
       setShowSignOutAlert(true);
-      setTimeout(() => 
-        setShowSignOutAlert(false), 3000)
+      setTimeout(() => setShowSignOutAlert(false), 3000);
     }
   };
 
@@ -53,22 +52,23 @@ const Navbar = () => {
     <div className="min-h-screen bg-muted">
       <nav className="h-16 bg-background border-b">
         <div className="h-full flex items-center justify-between max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Logo />
-          {/* <WishlistSvg /> */}
+          <WishlistSvg />
 
           {/* <NavMenu className="hidden md:block" /> */}
 
-          {showSignOutAlert && <Alert alertText="You are now signed out!"/>}
+          {showSignOutAlert && <Alert alertText="You are now signed out!" />}
           <div className="flex items-center gap-3">
             <Button variant="outline" className="hidden sm:inline-flex">
               Create a Wishlist
             </Button>
 
-            {session ? 
-            <Button onClick={signOut}>Sign out</Button> :
-            <Button onClick={signInWithGoogle}>{signingIn ? "Signing you in...": "Sign in with Google"}</Button>
-            }
-            
+            {session ? (
+              <Button onClick={signOut}>Sign out</Button>
+            ) : (
+              <Button onClick={signInWithGoogle}>
+                {signingIn ? "Signing you in..." : "Sign in with Google"}
+              </Button>
+            )}
 
             {/* Mobile Menu */}
             <div className="md:hidden">
