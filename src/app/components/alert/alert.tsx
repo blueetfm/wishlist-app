@@ -3,7 +3,7 @@ import { CheckCircle2Icon } from "lucide-react"
 import {
   Alert,
   AlertTitle,
-} from "@/components/ui/alert"
+} from "@/app/components/ui/alert"
 
 export const CustomAlert = ({alertText} : {alertText: string}) => {
   return (

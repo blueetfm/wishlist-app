@@ -4,13 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:server": "tsx src/backend/index.ts",
     "build": "next build",
     "start": "next start",
+    "start:server": "tsx src/backend/index.ts",
     "lint": "next lint"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/react": "^3.22.0",
+    "@fastify/cors": "^10.1.0",
     "@lifesg/react-design-system": "^3.0.0-alpha.17",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-navigation-menu": "^1.2.13",
@@ -20,13 +23,19 @@
     "@supabase/supabase-js": "^2.52.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "fastify": "^5.8.5",
     "google-one-tap": "^1.0.6",
     "lucide-react": "^0.525.0",
-    "next": "15.4.4",
+    "next": "^16.2.7",
+    "postgres": "^3.4.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "svgo": "^4.0.0",
-    "tailwind-merge": "^3.3.1"
+    "swagger-ui-react": "^5.0.0",
+    "tailwind-merge": "^3.3.1",
+    "tsx": "^4.18.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -35,6 +44,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/swagger-ui-react": "^5.18.0",
     "eslint": "^9",
     "eslint-config-next": "15.4.4",
     "tailwindcss": "^4",

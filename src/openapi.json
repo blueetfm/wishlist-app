@@ -1,0 +1,439 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Wishlist App API",
+    "version": "1.1.0",
+    "description": "Full-stack wishlist API supporting authentication, web scraping, secure guest sharing, one-to-one anonymous claiming, and polymorphic threaded comments."
+  },
+  "servers": [
+    {
+      "url": "https://api.yourdomain.com",
+      "description": "Production Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Supabase Access Token"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      },
+      "AuthRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "format": "password" }
+        }
+      },
+      "Profile": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "username": { "type": "string" },
+          "avatarUrl": { "type": "string", "nullable": true },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "WishlistCreate": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true }
+        }
+      },
+      "WishlistOwner": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "shareToken": { "type": "string", "format": "uuid" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "WishlistGuest": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "ownerUsername": { "type": "string" },
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/WishlistItemGuest" }
+          }
+        }
+      },
+      "WishlistItemCreate": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "productUrl": { "type": "string", "nullable": true },
+          "imageUrl": { "type": "string", "nullable": true },
+          "price": { "type": "number", "format": "float", "nullable": true }
+        }
+      },
+      "ClaimDetail": {
+        "type": "object",
+        "description": "Details of the single claim attached to an item.",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "guestName": { "type": "string", "nullable": true, "description": "Null if claimed anonymously" },
+          "message": { "type": "string", "nullable": true },
+          "claimedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "WishlistItemOwner": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "productUrl": { "type": "string", "nullable": true },
+          "imageUrl": { "type": "string", "nullable": true },
+          "price": { "type": "number", "format": "float", "nullable": true },
+          "claim": {
+            "allOf": [{ "$ref": "#/components/schemas/ClaimDetail" }],
+            "nullable": true,
+            "description": "Owner can see the single claim data, if it exists."
+          }
+        }
+      },
+      "WishlistItemGuest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "productUrl": { "type": "string", "nullable": true },
+          "imageUrl": { "type": "string", "nullable": true },
+          "price": { "type": "number", "format": "float", "nullable": true },
+          "isClaimed": { "type": "boolean" }
+        }
+      },
+      "ClaimRequest": {
+        "type": "object",
+        "properties": {
+          "guestName": { "type": "string", "nullable": true, "description": "Omit or pass null to claim anonymously." },
+          "message": { "type": "string", "nullable": true }
+        }
+      },
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "wishlistId": { "type": "string", "format": "uuid", "nullable": true },
+          "itemId": { "type": "string", "format": "uuid", "nullable": true },
+          "parentId": { "type": "string", "format": "uuid", "nullable": true },
+          "authorName": { "type": "string", "nullable": true, "description": "Null if anonymous guest." },
+          "authorUserId": { "type": "string", "format": "uuid", "nullable": true, "description": "Present if authenticated owner replied." },
+          "content": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "replies": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Comment" },
+            "description": "Threaded self-referencing array."
+          }
+        }
+      },
+      "CommentCreate": {
+        "type": "object",
+        "required": ["content"],
+        "properties": {
+          "wishlistId": { "type": "string", "format": "uuid", "nullable": true },
+          "itemId": { "type": "string", "format": "uuid", "nullable": true },
+          "parentId": { "type": "string", "format": "uuid", "nullable": true },
+          "content": { "type": "string" },
+          "authorName": { "type": "string", "nullable": true, "description": "Guest name. Omit or null to post anonymously." }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/auth/profile": {
+      "post": {
+        "summary": "Sync authenticated profile",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Profile synced",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Profile" }
+              }
+            }
+          },
+          "401": { "description": "Missing or invalid bearer token" }
+        }
+      }
+    },
+    "/api/wishlists/new": {
+      "post": {
+        "summary": "Create wishlist",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/WishlistCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Wishlist created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WishlistOwner" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wishlists/me": {
+      "get": {
+        "summary": "View current user's wishlists",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of user's wishlists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/WishlistOwner" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wishlists/{wishlistId}/items": {
+      "get": {
+        "summary": "List wishlist items (Owner View)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "wishlistId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of items with single claim details visible to owner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/WishlistItemOwner" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add product",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "wishlistId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/WishlistItemCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Item created" }
+        }
+      }
+    },
+    "/api/wishlists/{wishlistId}/items/{itemId}": {
+      "put": {
+        "summary": "Edit product",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "wishlistId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+          { "name": "itemId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/WishlistItemCreate" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Item updated" }
+        }
+      },
+      "delete": {
+        "summary": "Remove product",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "wishlistId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+          { "name": "itemId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "204": { "description": "Item deleted via cascading delete" }
+        }
+      }
+    },
+    "/api/wishlists/shared/{shareToken}/items": {
+      "get": {
+        "summary": "View public wishlist (Guest View)",
+        "description": "No auth required. Fetches items and boolean claim status.",
+        "parameters": [
+          { "name": "shareToken", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Public wishlist details with items",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WishlistGuest" }
+              }
+            }
+          },
+          "404": { "description": "Invalid share token" }
+        }
+      }
+    },
+    "/api/wishlists/shared/{shareToken}/items/{itemId}/claim": {
+      "post": {
+        "summary": "Claim a gift",
+        "description": "Allows a guest to claim an item. Can be anonymous.",
+        "parameters": [
+          { "name": "shareToken", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+          { "name": "itemId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ClaimRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Item successfully claimed" },
+          "409": { "description": "Item already claimed (Unique Constraint Violation)" }
+        }
+      }
+    },
+    "/api/comments": {
+      "post": {
+        "summary": "Add a comment",
+        "description": "Post a comment or reply. Guests can omit 'authorName' to be anonymous. Owners pass auth token.",
+        "security": [{}, { "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CommentCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Comment added successfully" },
+          "400": { "description": "Failed CHECK constraint (Must belong to item OR wishlist, not both)" }
+        }
+      }
+    },
+    "/api/wishlists/{wishlistId}/comments": {
+      "get": {
+        "summary": "Get wishlist comments",
+        "description": "Fetch all threaded comments for a wishlist.",
+        "parameters": [
+          { "name": "wishlistId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of threaded comments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Comment" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/items/{itemId}/comments": {
+      "get": {
+        "summary": "Get item comments",
+        "description": "Fetch all threaded comments for a specific item.",
+        "parameters": [
+          { "name": "itemId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of threaded comments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Comment" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scraper/extract": {
+      "post": {
+        "summary": "Extract product details from URL",
+        "description": "Sends URL to microservice to extract metadata. Requires owner auth.",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": { "type": "string", "format": "uri" }
+                },
+                "required": ["url"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Extracted metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string" },
+                    "price": { "type": "number", "format": "float", "nullable": true },
+                    "imageUrl": { "type": "string", "nullable": true }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
