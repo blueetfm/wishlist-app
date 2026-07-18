@@ -45,7 +45,11 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: #fff4e1;
+  --page-overlay-image: url("/overlay.png");
+  --page-overlay-repeat: repeat;
+  --page-overlay-position: top left;
+  --page-overlay-size: auto;
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -117,6 +121,20 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    min-height: 100dvh;
+    background-color: var(--background);
+    background-image: var(--page-overlay-image);
+    background-repeat: var(--page-overlay-repeat);
+    background-position: var(--page-overlay-position);
+    background-size: var(--page-overlay-size);
   }
+}
+
+body.overlay-repeat-x {
+  --page-overlay-repeat: repeat-x;
+}
+
+body.overlay-repeat-y {
+  --page-overlay-repeat: repeat-y;
 }

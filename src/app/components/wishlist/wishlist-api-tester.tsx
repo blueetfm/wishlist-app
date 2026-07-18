@@ -77,7 +77,7 @@ export function WishlistApiTester() {
   };
 
   return (
-    <section className="rounded-3xl bg-white p-8 shadow-lg">
+    <section className="rounded-3xl bg-white/70 p-8 shadow-lg backdrop-blur-sm">
       <div className="flex flex-col gap-3 border-b border-slate-200 pb-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h2 className="text-2xl font-semibold text-slate-900">Wishlist API tester</h2>
@@ -90,14 +90,14 @@ export function WishlistApiTester() {
           <input
             value={baseUrl}
             onChange={(event) => setBaseUrl(event.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
+            className="w-full rounded-2xl border border-slate-200 bg-white/70 px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
             placeholder="/api"
           />
         </label>
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <article className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+        <article className="rounded-3xl border border-slate-200 bg-white/55 p-5">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Read</p>
@@ -115,7 +115,7 @@ export function WishlistApiTester() {
           <p className="mt-3 text-sm text-slate-600">Fetch the public wishlist collection.</p>
         </article>
 
-        <article className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+        <article className="rounded-3xl border border-slate-200 bg-white/55 p-5">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Auth</p>
@@ -133,7 +133,7 @@ export function WishlistApiTester() {
           <p className="mt-3 text-sm text-slate-600">Exercise the authenticated wishlist endpoint.</p>
         </article>
 
-        <article className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+        <article className="rounded-3xl border border-slate-200 bg-white/55 p-5">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Read</p>
@@ -153,12 +153,12 @@ export function WishlistApiTester() {
             <input
               value={wishlistId}
               onChange={(event) => setWishlistId(event.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
+              className="w-full rounded-2xl border border-slate-200 bg-white/75 px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
             />
           </label>
         </article>
 
-        <article className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+        <article className="rounded-3xl border border-slate-200 bg-white/55 p-5">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Write</p>
@@ -187,7 +187,7 @@ export function WishlistApiTester() {
               <input
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
+                className="w-full rounded-2xl border border-slate-200 bg-white/75 px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
               />
             </label>
             <label className="space-y-2 text-sm font-medium text-slate-700">
@@ -195,13 +195,13 @@ export function WishlistApiTester() {
               <input
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
+                className="w-full rounded-2xl border border-slate-200 bg-white/75 px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
               />
             </label>
           </div>
         </article>
 
-        <article className="rounded-3xl border border-slate-200 bg-slate-50 p-5 lg:col-span-2">
+        <article className="rounded-3xl border border-slate-200 bg-white/55 p-5 lg:col-span-2">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Write</p>
@@ -230,7 +230,7 @@ export function WishlistApiTester() {
               <input
                 value={itemName}
                 onChange={(event) => setItemName(event.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
+                className="w-full rounded-2xl border border-slate-200 bg-white/75 px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
               />
             </label>
             <label className="space-y-2 text-sm font-medium text-slate-700 md:col-span-2">
@@ -238,13 +238,13 @@ export function WishlistApiTester() {
               <input
                 value={productUrl}
                 onChange={(event) => setProductUrl(event.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
+                className="w-full rounded-2xl border border-slate-200 bg-white/75 px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
               />
             </label>
           </div>
         </article>
 
-        <article className="rounded-3xl border border-slate-200 bg-slate-50 p-5 lg:col-span-2">
+        <article className="rounded-3xl border border-slate-200 bg-white/55 p-5 lg:col-span-2">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Public</p>
@@ -277,7 +277,7 @@ export function WishlistApiTester() {
               <input
                 value={shareToken}
                 onChange={(event) => setShareToken(event.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
+                className="w-full rounded-2xl border border-slate-200 bg-white/75 px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
               />
             </label>
             <label className="space-y-2 text-sm font-medium text-slate-700">
@@ -285,7 +285,7 @@ export function WishlistApiTester() {
               <input
                 value={itemId}
                 onChange={(event) => setItemId(event.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
+                className="w-full rounded-2xl border border-slate-200 bg-white/75 px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
               />
             </label>
             <label className="space-y-2 text-sm font-medium text-slate-700">
@@ -293,7 +293,7 @@ export function WishlistApiTester() {
               <input
                 value={guestName}
                 onChange={(event) => setGuestName(event.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
+                className="w-full rounded-2xl border border-slate-200 bg-white/75 px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
               />
             </label>
             <label className="space-y-2 text-sm font-medium text-slate-700 md:col-span-3">
@@ -301,14 +301,14 @@ export function WishlistApiTester() {
               <input
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
+                className="w-full rounded-2xl border border-slate-200 bg-white/75 px-4 py-3 text-slate-900 outline-none focus:border-slate-400"
               />
             </label>
           </div>
         </article>
       </div>
 
-      <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-950 p-6 text-slate-100">
+      <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-950/85 p-6 text-slate-100 backdrop-blur-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Latest response</p>

@@ -2,12 +2,15 @@ import "dotenv/config";
 import fastify from "fastify";
 import type { FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
+import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod";
 import authRoutes from "./routes/auth";
 import wishlistRoutes from "./routes/wishlists";
 import commentRoutes from "./routes/comments";
 import scraperRoutes from "./routes/scraper";
 
 const app = fastify({ logger: true });
+app.setValidatorCompiler(validatorCompiler);
+app.setSerializerCompiler(serializerCompiler);
 
 const port = Number(process.env.PORT || 4000);
 
