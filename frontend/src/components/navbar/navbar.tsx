@@ -60,10 +60,6 @@ const Navbar = () => {
 
           {showSignOutAlert && <Alert alertText="You are now signed out!"/>}
           <div className="flex items-center gap-3">
-            <Button variant="outline" className="hidden sm:inline-flex">
-              Create a Wishlist
-            </Button>
-
             {session ? 
             <Button onClick={signOut}>Sign out</Button> :
             <Button onClick={signInWithGoogle}>{signingIn ? "Signing you in...": "Sign in with Google"}</Button>
