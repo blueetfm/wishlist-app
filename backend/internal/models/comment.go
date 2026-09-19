@@ -13,6 +13,7 @@ type Comment struct {
 	Content    string    `json:"content"`
 	CreatedAt  time.Time `json:"created_at"`
 	Replies    []Comment `json:"replies,omitempty"`
+	IsMine     bool      `json:"is_mine"`
 }
 
 // CreateCommentRequest is the payload for POST /api/v1/comments. Exactly one
@@ -22,4 +23,9 @@ type CreateCommentRequest struct {
 	ItemID     *string `json:"itemId"`
 	ParentID   *string `json:"parentId"`
 	Content    string  `json:"content"`
+}
+
+// UpdateCommentRequest is the payload for PUT /api/v1/comments/{commentId}
+type UpdateCommentRequest struct {
+	Content		*string `json:"content"`
 }

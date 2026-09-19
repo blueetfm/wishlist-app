@@ -23,7 +23,7 @@ type CreateItemRequest struct {
 	EmbedData  map[string]any `json:"embed_data,omitempty"`
 }
 
-// UpdateItemRequest is the payload for PUT /api/v1/items/{itemId}.
+// UpdateItemRequest is the payload for PUT /api/v1/wishlists/{wishlistId}/items/{itemId}.
 type UpdateItemRequest struct {
 	Name       *string        `json:"name"`
 	ProductURL *string        `json:"product_url"`

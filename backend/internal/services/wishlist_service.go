@@ -25,11 +25,11 @@ func NewWishlistService(pool *pgxpool.Pool) *WishlistService {
 	return &WishlistService{pool: pool}
 }
 
-const wishlistColumns = `id, user_id, title, description, share_token, created_at`
+const wishlistColumns = `id, user_id, title, description, share_token, is_shared, hide_claims_from_owner, created_at`
 
 func scanWishlist(row pgx.Row) (models.Wishlist, error) {
 	var w models.Wishlist
-	err := row.Scan(&w.ID, &w.UserID, &w.Title, &w.Description, &w.ShareToken, &w.CreatedAt)
+	err := row.Scan(&w.ID, &w.UserID, &w.Title, &w.Description, &w.ShareToken, &w.IsShared, &w.HideClaimsFromOwner, &w.CreatedAt)
 	return w, err
 }
 
@@ -111,12 +111,16 @@ func (s *WishlistService) Update(ctx context.Context, userID, wishlistID string,
 	if req.Description != nil {
 		description = *req.Description
 	}
+	hideClaimsFromOwner := existing.HideClaimsFromOwner
+	if req.HideClaimsFromOwner != nil {
+		hideClaimsFromOwner = *req.HideClaimsFromOwner
+	}
 
 	row := s.pool.QueryRow(ctx, `
 		UPDATE wishlists
-		SET title = $1, description = $2
-		WHERE id = $3
-		RETURNING `+wishlistColumns, title, description, wishlistID)
+		SET title = $1, description = $2, hide_claims_from_owner = $3
+		WHERE id = $4
+		RETURNING `+wishlistColumns, title, description, hideClaimsFromOwner, wishlistID)
 
 	w, err := scanWishlist(row)
 	if err != nil {

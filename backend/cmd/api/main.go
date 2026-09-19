@@ -33,9 +33,19 @@ func main() {
 		log.Fatalf("failed to load JWKS from %s: %v", cfg.SupabaseJWKSURL, err)
 	}
 
+	wishlistService := services.NewWishlistService(pool)
+	itemService := services.NewItemService(pool)
+
 	deps := routes.Dependencies{
-		WishlistService: services.NewWishlistService(pool),
-		JWKS:            jwks,
+		WishlistService:    wishlistService,
+		ItemService:        itemService,
+		ClaimService:       services.NewClaimService(pool),
+		SplitService:       services.NewSplitService(pool),
+		CommentService:     services.NewCommentService(pool),
+		EmbedService:       services.NewEmbedService(),
+		ShareService:       services.NewShareService(pool, wishlistService, itemService),
+		IdempotencyService: services.NewIdempotencyService(pool),
+		JWKS:               jwks,
 	}
 
 	mux := routes.NewRouter(deps)

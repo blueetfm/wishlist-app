@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 	"net/http"
 
@@ -115,18 +114,4 @@ func (h *WishlistHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
-}
-
-// writeServiceError maps known service-layer sentinel errors to HTTP status codes.
-func writeServiceError(w http.ResponseWriter, err error) {
-	switch {
-	case errors.Is(err, services.ErrNotFound):
-		writeError(w, http.StatusNotFound, "resource not found")
-	case errors.Is(err, services.ErrForbidden):
-		writeError(w, http.StatusForbidden, "you do not have access to this resource")
-	case errors.Is(err, services.ErrConflict):
-		writeError(w, http.StatusConflict, "resource already exists")
-	default:
-		writeError(w, http.StatusInternalServerError, "internal server error")
-	}
 }

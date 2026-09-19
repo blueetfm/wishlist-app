@@ -18,6 +18,8 @@ tags:
     description: Wishlist item management, claims, and split interest
   - name: embed
     description: Open Graph link embedding
+  - name: share
+    description: Owner-only management of a wishlist's public share link
   - name: shared
     description: Public shared wishlist access
   - name: comments
@@ -35,6 +37,8 @@ paths:
         Creates a new wishlist owned by the authenticated user. The database
         automatically generates and assigns a permanent `share_token` (UUID).
       operationId: createWishlist
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
         content:
@@ -147,6 +151,7 @@ paths:
       operationId: createItem
       parameters:
         - $ref: "#/components/parameters/WishlistId"
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
         content:
@@ -191,13 +196,36 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
-  /items/{itemId}:
+  /wishlists/{wishlistId}/items/{itemId}:
+    get:
+      tags: [items]
+      summary: Get an item by id
+      description: Retrieves a specific item within a wishlist owned by the authenticated user.
+      operationId: getItem
+      parameters:
+        - $ref: "#/components/parameters/WishlistId"
+        - $ref: "#/components/parameters/ItemId"
+      responses:
+        "200":
+          description: The item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
     put:
       tags: [items]
       summary: Update an item
       description: Updates item details (e.g., price changes, name updates).
       operationId: updateItem
       parameters:
+        - $ref: "#/components/parameters/WishlistId"
         - $ref: "#/components/parameters/ItemId"
       requestBody:
         required: true
@@ -225,6 +253,7 @@ paths:
       description: Deletes a specific item.
       operationId: deleteItem
       parameters:
+        - $ref: "#/components/parameters/WishlistId"
         - $ref: "#/components/parameters/ItemId"
       responses:
         "204":
@@ -236,13 +265,14 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
-  /items/{itemId}/comments:
+  /wishlists/{wishlistId}/items/{itemId}/comments:
     get:
       tags: [comments]
       summary: List comments on an item
       description: Retrieves all nested (threaded) comments associated with a specific item.
       operationId: listItemComments
       parameters:
+        - $ref: "#/components/parameters/WishlistId"
         - $ref: "#/components/parameters/ItemId"
       responses:
         "200":
@@ -258,7 +288,7 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
-  /items/{itemId}/claim:
+  /wishlists/{wishlistId}/items/{itemId}/claim:
     post:
       tags: [items]
       summary: Claim an item
@@ -267,7 +297,9 @@ paths:
         409 Conflict if the item is already claimed by someone else.
       operationId: claimItem
       parameters:
+        - $ref: "#/components/parameters/WishlistId"
         - $ref: "#/components/parameters/ItemId"
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: false
         content:
@@ -300,6 +332,7 @@ paths:
         user who made the claim.
       operationId: unclaimItem
       parameters:
+        - $ref: "#/components/parameters/WishlistId"
         - $ref: "#/components/parameters/ItemId"
       responses:
         "204":
@@ -311,7 +344,7 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
-  /items/{itemId}/split-interest:
+  /wishlists/{wishlistId}/items/{itemId}/split:
     post:
       tags: [items]
       summary: Register split interest in an item
@@ -321,7 +354,9 @@ paths:
         on this item. No fractional amounts are tracked.
       operationId: registerSplitInterest
       parameters:
+        - $ref: "#/components/parameters/WishlistId"
         - $ref: "#/components/parameters/ItemId"
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
         content:
@@ -352,6 +387,7 @@ paths:
       description: Removes the authenticated user's handle from the split pool.
       operationId: removeSplitInterest
       parameters:
+        - $ref: "#/components/parameters/WishlistId"
         - $ref: "#/components/parameters/ItemId"
       responses:
         "204":
@@ -390,6 +426,18 @@ paths:
                 $ref: "#/components/schemas/Error"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "422":
+          description: The URL was reached but no Open Graph metadata was found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "502":
+          description: The target URL could not be fetched
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /comments:
     post:
@@ -400,6 +448,8 @@ paths:
         (exactly one). Can optionally include a `parentId` to thread the
         comment as a reply.
       operationId: createComment
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
         content:
@@ -424,13 +474,122 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
+  /comments/{commentId}:
+    put:
+      tags: [comments]
+      summary: Update a comment
+      description: Updates the content of a comment owned by the authenticated user.
+      operationId: updateComment
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCommentRequest"
+      responses:
+        "200":
+          description: Comment updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /wishlists/{wishlistId}/share:
+    get:
+      tags: [share]
+      summary: Get the active share link
+      description: >
+        Fetches the wishlist's share status so the owner can copy their link.
+        Returns 404 if the wishlist isn't currently shared.
+      operationId: getShare
+      parameters:
+        - $ref: "#/components/parameters/WishlistId"
+      responses:
+        "200":
+          description: The active share status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Share"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    post:
+      tags: [share]
+      summary: Share a wishlist
+      description: >
+        Turns sharing on for the wishlist. Idempotent while already shared:
+        repeated calls return the same share_token. If sharing was previously
+        revoked, a new share_token is generated, invalidating any old link.
+      operationId: createShare
+      parameters:
+        - $ref: "#/components/parameters/WishlistId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "201":
+          description: Share link active
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Share"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      tags: [share]
+      summary: Revoke the share link
+      description: >
+        Turns sharing off for the wishlist. The existing share_token is kept
+        but stops resolving until sharing is turned back on, at which point
+        it is rotated.
+      operationId: revokeShare
+      parameters:
+        - $ref: "#/components/parameters/WishlistId"
+      responses:
+        "204":
+          description: Share link revoked
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Wishlist isn't currently shared, or doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /shared/{shareToken}:
     get:
       tags: [shared]
       summary: Get a shared wishlist by its share token
       description: >
-        Public-facing endpoint for guests to view the wishlist, its items,
-        claim statuses, and split interests. No authentication required.
+        Public-facing endpoint to view the wishlist, its items, claim
+        statuses, and split interests. No authentication required, but if
+        the caller sends a valid bearer token, their claims and split
+        interests are still annotated with is_mine instead of being resolved
+        as an anonymous guest.
       operationId: getSharedWishlist
       security: []
       parameters:
@@ -476,6 +635,17 @@ components:
         type: string
         format: uuid
 
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: >-
+        Client-generated unique token. Retrying a POST with the same key
+        (per user, method, and path) replays the original response instead
+        of executing it again.
+      schema:
+        type: string
+
   responses:
     Unauthorized:
       description: Missing or invalid authentication
@@ -513,6 +683,12 @@ components:
           type: string
         description:
           type: string
+        hide_claims_from_owner:
+          type: boolean
+          description: >-
+            When true, the owner's own view of this wishlist omits claim and
+            split-interest data so they aren't spoiled. Guests are unaffected
+            and always see full claim data via /shared/{shareToken}.
 
     Wishlist:
       type: object
@@ -520,7 +696,7 @@ components:
         id:
           type: string
           format: uuid
-        owner_id:
+        user_id:
           type: string
           format: uuid
         title:
@@ -530,11 +706,20 @@ components:
         share_token:
           type: string
           format: uuid
-          description: Permanent UUID token used to access the wishlist via /shared/{shareToken}
+          description: >-
+            UUID token used to access the wishlist via /shared/{shareToken}.
+            Rotated whenever sharing is turned back on after being revoked.
+        is_shared:
+          type: boolean
+          description: Whether share_token currently resolves via /shared/{shareToken}.
+        hide_claims_from_owner:
+          type: boolean
+          default: true
+          description: >-
+            Owner-controlled spoiler protection: when true, claim and
+            split-interest data is omitted from the owner's own view.
+            Defaults to true so new wishlists start spoiler-free.
         created_at:
-          type: string
-          format: date-time
-        updated_at:
           type: string
           format: date-time
 
@@ -625,6 +810,9 @@ components:
     Claim:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         item_id:
           type: string
           format: uuid
@@ -636,6 +824,9 @@ components:
         claimed_at:
           type: string
           format: date-time
+        is_mine:
+          type: boolean
+          description: True if the requesting user made this claim.
 
     SplitInterestRequest:
       type: object
@@ -649,6 +840,9 @@ components:
     SplitInterestEntry:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         item_id:
           type: string
           format: uuid
@@ -661,6 +855,9 @@ components:
         created_at:
           type: string
           format: date-time
+        is_mine:
+          type: boolean
+          description: True if the requesting user registered this split interest.
 
     EmbedRequest:
       type: object
@@ -700,6 +897,13 @@ components:
         content:
           type: string
 
+    UpdateCommentRequest:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+
     Comment:
       type: object
       properties:
@@ -726,34 +930,29 @@ components:
         created_at:
           type: string
           format: date-time
+        is_mine:
+          type: boolean
+          description: True if the requesting user authored this comment.
         replies:
           type: array
           description: Nested threaded replies to this comment
           items:
             $ref: "#/components/schemas/Comment"
 
-    SharedWishlist:
+    Share:
       type: object
       properties:
-        id:
+        token:
           type: string
           format: uuid
-        title:
-          type: string
-        description:
-          type: string
-        share_token:
-          type: string
-          format: uuid
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/Item"
-        split_interests:
-          type: array
-          description: All split interests across the wishlist's items
-          items:
-            $ref: "#/components/schemas/SplitInterestEntry"
+          description: The wishlist's share_token, usable at /shared/{shareToken}
+        is_active:
+          type: boolean
+          description: Whether this token currently resolves publicly
+
+    SharedWishlist:
+      allOf:
+        - $ref: "#/components/schemas/WishlistDetail"
 
     Error:
       type: object
