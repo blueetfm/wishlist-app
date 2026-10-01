@@ -190,7 +190,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Comment"
+                  $ref: "#/components/schemas/CommentTree"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
@@ -282,7 +282,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Comment"
+                  $ref: "#/components/schemas/CommentTree"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
@@ -739,6 +739,8 @@ components:
       properties:
         name:
           type: string
+        description:
+          type: string
         product_url:
           type: string
           format: uri
@@ -749,11 +751,18 @@ components:
           type: object
           description: Open Graph metadata previously fetched via POST /embed
           additionalProperties: true
+        image_url:
+          type: string
+          format: uri
+          nullable: true
+          description: User-uploaded product photo, takes precedence over embed_data.image_url
 
     UpdateItemRequest:
       type: object
       properties:
         name:
+          type: string
+        description:
           type: string
         product_url:
           type: string
@@ -764,6 +773,10 @@ components:
         embed_data:
           type: object
           additionalProperties: true
+        image_url:
+          type: string
+          format: uri
+          nullable: true
 
     Item:
       type: object
@@ -776,6 +789,8 @@ components:
           format: uuid
         name:
           type: string
+        description:
+          type: string
         product_url:
           type: string
           format: uri
@@ -785,6 +800,11 @@ components:
         embed_data:
           type: object
           additionalProperties: true
+        image_url:
+          type: string
+          format: uri
+          nullable: true
+          description: User-uploaded product photo, takes precedence over embed_data.image_url
         claim:
           nullable: true
           $ref: "#/components/schemas/Claim"
@@ -933,11 +953,23 @@ components:
         is_mine:
           type: boolean
           description: True if the requesting user authored this comment.
-        replies:
+
+    CommentTree:
+      type: object
+      description: >
+        A comment nested with its threaded replies, returned by the
+        list-comments endpoints instead of a flat Comment.
+      properties:
+        id:
+          type: string
+          format: uuid
+        content:
+          type: string
+        children:
           type: array
           description: Nested threaded replies to this comment
           items:
-            $ref: "#/components/schemas/Comment"
+            $ref: "#/components/schemas/CommentTree"
 
     Share:
       type: object

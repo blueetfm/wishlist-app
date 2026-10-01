@@ -35,3 +35,4 @@ require a Supabase bearer token except `/shared/{shareToken}`.
 go build ./cmd/api
 go test ./...
 ```
+
