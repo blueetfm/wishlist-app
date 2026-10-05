@@ -1,4 +1,5 @@
 import React from "react";
+import "./gift-ribbon.css";
 
 interface GiftRibbonProps {
   /** Controls the thickness of the ribbon lines (default: 18) */
@@ -16,13 +17,13 @@ export function GiftRibbon({
 }: GiftRibbonProps) {
   return (
     <div
-      className={`w-[160px] h-[54px] shrink-0 pointer-events-none select-none ${className}`}
+      className={`gift-ribbon ${className}`.trim()}
     >
       <svg
         viewBox="0 0 210 70"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full overflow-visible"
+        className="gift-ribbon__svg"
       >
         {/* Left Ribbon Tail */}
         <path

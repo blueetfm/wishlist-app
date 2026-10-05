@@ -48,7 +48,6 @@ export function AuthButton({ className = "" }: AuthButtonProps) {
 
   return (
     <>
-      {showSignOutAlert && <Alert alertText="You are now signed out!" />}
       <StylizedButton size="sm" onClick={session ? signOut : signInWithGoogle} className={className}>
         {session ? "Sign Out" : signingIn ? "Signing you in..." : "Sign In"}
       </StylizedButton>

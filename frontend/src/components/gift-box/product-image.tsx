@@ -1,5 +1,6 @@
 import React from "react";
 import { ImageOff } from "lucide-react";
+import "./product-image.css";
 
 interface ProductImageProps {
   /** User-uploaded photo (Item.image_url). Takes precedence when present. */
@@ -22,9 +23,9 @@ export function ProductImage({
   if (!src) {
     return (
       <div
-        className={`flex items-center justify-center w-full h-full min-h-[160px] text-muted-foreground ${className}`}
+        className={`product-image-placeholder ${className}`.trim()}
       >
-        <ImageOff className="w-10 h-10" strokeWidth={1.5} />
+        <ImageOff className="product-image-placeholder__icon" strokeWidth={1.5} />
       </div>
     );
   }
@@ -36,7 +37,7 @@ export function ProductImage({
     <img
       src={src}
       alt={alt}
-      className={`w-full h-full object-cover rounded-xl ${className}`}
+      className={`product-image ${className}`.trim()}
     />
   );
 }

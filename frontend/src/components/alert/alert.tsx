@@ -4,10 +4,11 @@ import {
   Alert,
   AlertTitle,
 } from "@/components/ui/alert"
+import "./alert.css"
 
 export const CustomAlert = ({alertText} : {alertText: string}) => {
   return (
-    <div className="grid w-full max-w-xl items-start gap-4">
+    <div className="custom-alert">
       <Alert>
         <CheckCircle2Icon />
         <AlertTitle>{alertText}</AlertTitle>

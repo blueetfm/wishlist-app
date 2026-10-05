@@ -1,0 +1,52 @@
+.stylized-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  border: 2px solid #214642;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.stylized-button:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.stylized-button--outline {
+  background-color: transparent;
+  color: #214642;
+  box-shadow: 3px 3px 0px #214642;
+}
+
+.stylized-button--outline:hover {
+  transform: translateY(1px);
+  box-shadow: 2px 2px 0px #214642;
+}
+
+.stylized-button--solid {
+  background-color: #214642;
+  color: #faf9f5;
+  box-shadow: 4px 4px 0px rgba(33, 70, 66, 0.3);
+}
+
+.stylized-button--solid:hover {
+  background-color: #2a5752;
+}
+
+.stylized-button--sm {
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.stylized-button--default {
+  padding: 0.75rem 1.5rem;
+}
+
+.stylized-button--lg {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  font-size: 1.125rem;
+}

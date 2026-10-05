@@ -1,6 +1,7 @@
 import React from "react";
 import { GiftRibbon } from "./gift-ribbon";
 import { ProductImage } from "./product-image";
+import "./gift-box.css";
 
 interface GiftBoxProps {
   /** Overrides the built-in ProductImage rendering with arbitrary content. */
@@ -21,20 +22,20 @@ export default function GiftBox({
   embedImageUrl,
   imageAlt = "",
   className = "",
-  boxClassName = "min-h-[260px]",
+  boxClassName = "gift-box__box--default-height",
   ribbonStrokeWidth = 18,
 }: GiftBoxProps) {
   return (
-    <div className={`flex flex-col items-center w-full ${className}`}>
+    <div className={`gift-box ${className}`.trim()}>
       {/* Fixed-size centered ribbon */}
       <GiftRibbon
         strokeWidth={ribbonStrokeWidth}
-        className="-mb-[7px] z-10"
+        className="gift-box__ribbon"
       />
 
       {/* Responsive gift box body */}
       <div
-        className={`w-full bg-[#FAFAFA] border-[6px] border-[#1D4B47] rounded-[22px] p-5 shadow-sm transition-all overflow-hidden ${boxClassName}`}
+        className={`gift-box__box ${boxClassName}`.trim()}
       >
         {children ?? (
           <ProductImage imageUrl={imageUrl} embedImageUrl={embedImageUrl} alt={imageAlt} />

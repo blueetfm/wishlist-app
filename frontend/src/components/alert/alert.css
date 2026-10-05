@@ -1,0 +1,7 @@
+.custom-alert {
+  display: grid;
+  width: 100%;
+  max-width: 36rem;
+  align-items: start;
+  gap: 1rem;
+}

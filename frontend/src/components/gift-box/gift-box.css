@@ -1,0 +1,27 @@
+.gift-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.gift-box__ribbon {
+  margin-bottom: -7px;
+  z-index: 10;
+}
+
+.gift-box__box {
+  position: relative;
+  width: 100%;
+  background-color: #fafafa;
+  border: 6px solid #1d4b47;
+  border-radius: 22px;
+  /* padding: 1.25rem; */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+  overflow: hidden;
+}
+
+.gift-box__box--default-height {
+  min-height: 260px;
+}

@@ -1,0 +1,56 @@
+/* Unique container name to prevent collisions */
+.wishlist-item-summary {
+  position: relative;
+  width: 100%;
+  max-width: 260px;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* .wishlist-item-summary:hover {
+  transform: translateY(-4px);
+} */
+
+.wishlist-item-summary__overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  /* bg-white/85 */
+  background-color: rgba(255, 255, 255, 0.85);
+  /* backdrop-blur-md */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(33, 70, 66, 0.1);
+  box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+.wishlist-item-summary__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1E2423;
+  margin-right: 12px;
+  margin-bottom: 0;
+  margin-top: 0;
+  
+  /* Text truncation (tail-off) */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wishlist-item-summary__price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #214642;
+  margin: 0;
+  
+  /* Prevent title from squishing the price */
+  flex-shrink: 0;
+}
